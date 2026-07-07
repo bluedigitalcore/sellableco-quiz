@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's actually stalling your course sales?</title>
+<script>
+/* ============================================================
+   CONFIG: everything brand-specific lives here.
+   To reskin: change colors, logo text, copy, questions, results.
+   Nothing below the config needs to be touched.
+   ============================================================ */
+const CONFIG = {
+
+  brand: {
+    logoText: "SELLABLE",
+    logoAccent: "CO",                      // small colored suffix after logoText
+    coachName: "Marissa Vale",
+    tagline: "Business coaching for course creators",
+    colors: {
+      primary:   "#5b3df5",                // buttons, progress bar, accents
+      primaryDark: "#482fd0",              // button hover / pressed
+      accentSoft: "#efeaff",               // selected answer background
+      bg:        "#f7f6fb",                // page background
+      surface:   "#ffffff",                // cards
+      text:      "#1c1730",                // headings / main text
+      textMuted: "#6f6a85",                // secondary text
+      border:    "#e5e2f0"                 // card & answer borders
+    }
+  },
+
+  intro: {
+    kicker: "Free 90-second quiz",
+    title: "What's actually stalling your course sales?",
+    subtitle: "You built the course. The sales aren't matching the effort. Answer 7 quick questions and find out which of the 3 sales blockers is holding you back, and exactly what to fix first.",
+    buttonLabel: "Start the quiz",
+    footnote: "7 questions · no right answers · instant result"
+  },
+
+  emailGate: {
+    kicker: "Your result is ready",
+    title: "Where should I send your full breakdown?",
+    subtitle: "You'll see your sales blocker type on the next screen. Pop in your email and I'll also send you the full action plan for your type.",
+    placeholder: "you@example.com",
+    buttonLabel: "Show my result →",
+    disclaimer: "No spam, ever. Unsubscribe with one click."
+  },
+
+  analyzing: {
+    lines: ["Scoring your answers…", "Comparing against 1,200+ course creators…", "Building your result…"]
+  },
+
+  // Each result type. The key is what answers point to.
+  results: {
+    visibility: {
+      badge: "Your sales blocker",
+      title: "The Best-Kept Secret",
+      headline: "Your course isn't the problem. Your reach is.",
+      description: "Your offer is solid and the people who buy it are happy. There just aren't enough of the right people seeing it. You're relying on a small, slowly-growing audience and hoping the algorithm does the heavy lifting. The fix isn't a better course or a fancier funnel: it's a repeatable way to put your offer in front of new, qualified people every single week.",
+      offerLabel: "Get the Audience Engine workshop →",
+      offerUrl: "#offer-visibility"
+    },
+    messaging: {
+      badge: "Your sales blocker",
+      title: "The Fuzzy Promise",
+      headline: "People see your course. They just don't get it.",
+      description: "You have eyes on your offer, but your messaging makes people think 'interesting…' instead of 'I need this.' The transformation is buried under features, modules and vague outcomes. When the promise is fuzzy, the price always feels too high. The fix is sharpening one specific, believable promise, then rebuilding your sales page and content around it.",
+      offerLabel: "Get the Message Sharpener kit →",
+      offerUrl: "#offer-messaging"
+    },
+    trust: {
+      badge: "Your sales blocker",
+      title: "The Almost-Buyer Magnet",
+      headline: "People want your course. They just don't buy today.",
+      description: "You attract interested people who click, read, and… wait. Your audience likes you, but liking isn't buying. They're missing proof it works for people like them, and a real reason to act now instead of 'someday.' The fix is stacking visible proof and building honest urgency into how you sell, so almost-buyers become actual buyers.",
+      offerLabel: "Get the Proof & Urgency playbook →",
+      offerUrl: "#offer-trust"
+    }
+  },
+
+  // 7 questions. Each answer adds points to one (or more) result types.
+  questions: [
+    {
+      text: "How do most people currently find out your course exists?",
+      answers: [
+        { label: "They mostly don't. My audience is tiny", points: { visibility: 2 } },
+        { label: "My content, but the wrong people follow me", points: { messaging: 2 } },
+        { label: "They find me, browse around, and vanish", points: { trust: 2 } },
+        { label: "Word of mouth from past students", points: { visibility: 1, trust: 1 } }
+      ]
+    },
+    {
+      text: "When you tell someone what your course does, what usually happens?",
+      answers: [
+        { label: "\"Oh cool!\" …and then nothing", points: { messaging: 2 } },
+        { label: "They ask a lot of \"but what exactly is it?\" questions", points: { messaging: 2 } },
+        { label: "They're excited, I just don't tell enough people", points: { visibility: 2 } },
+        { label: "They say they'll buy \"when the time is right\"", points: { trust: 2 } }
+      ]
+    },
+    {
+      text: "What did your last launch (or promo) look like?",
+      answers: [
+        { label: "Crickets. Barely anyone saw it", points: { visibility: 2 } },
+        { label: "Decent reach, lots of clicks, very few sales", points: { messaging: 1, trust: 1 } },
+        { label: "People opened everything… and bought nothing", points: { trust: 2 } },
+        { label: "Launch? I mostly hope people find the sales page", points: { visibility: 1, messaging: 1 } }
+      ]
+    },
+    {
+      text: "Which objection do you hear (or suspect) the most?",
+      answers: [
+        { label: "\"I didn't even know you sold a course\"", points: { visibility: 2 } },
+        { label: "\"I'm not sure it's right for my situation\"", points: { messaging: 2 } },
+        { label: "\"I'll join the next round\"", points: { trust: 2 } },
+        { label: "\"It's too expensive\"", points: { messaging: 1, trust: 1 } }
+      ]
+    },
+    {
+      text: "Be honest: how's your email list doing?",
+      answers: [
+        { label: "What email list?", points: { visibility: 2 } },
+        { label: "Small but growing, I just rarely sell to it", points: { trust: 2 } },
+        { label: "Decent size, but opens and clicks are meh", points: { messaging: 2 } },
+        { label: "Healthy list, healthy opens, weak sales", points: { messaging: 1, trust: 1 } }
+      ]
+    },
+    {
+      text: "How much visible proof does your course have right now?",
+      answers: [
+        { label: "Plenty of results, all buried in my DMs and inbox", points: { trust: 2 } },
+        { label: "A few testimonials, but they're pretty generic", points: { messaging: 1, trust: 1 } },
+        { label: "Honestly? Almost none yet", points: { trust: 2 } },
+        { label: "Good proof, but too few people ever see it", points: { visibility: 2 } }
+      ]
+    },
+    {
+      text: "If I gave you one focused week to fix your sales, you'd instinctively spend it on…",
+      answers: [
+        { label: "Getting in front of new people", points: { visibility: 2 } },
+        { label: "Rewriting my sales page from scratch", points: { messaging: 2 } },
+        { label: "Collecting and showcasing student results", points: { trust: 2 } },
+        { label: "No idea, that's why I'm taking this quiz", points: { visibility: 1, messaging: 1 } }
+      ]
+    }
+  ]
+};
+/* ================== END CONFIG ================== */
+</script>
+
+<style>
+  :root { /* colors are injected from CONFIG by JS */ }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 32px;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0 4px;
+  }
+  .logo {
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    font-size: 15px;
+  }
+  .logo span { color: var(--primary); }
+
+  /* ---------- progress bar ---------- */
+  .progress-wrap {
+    margin: 16px 0 8px;
+    visibility: hidden;
+  }
+  .progress-wrap.visible { visibility: visible; }
+  .progress-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    border-radius: 99px;
+    transition: width 0.35s ease;
+  }
+
+  /* ---------- screens ---------- */
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    animation: slideIn 0.3s ease both;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .kicker {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    background: var(--accent-soft);
+    padding: 6px 12px;
+    border-radius: 99px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+
+  h2 {
+    font-size: 22px;
+    line-height: 1.3;
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .footnote {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+
+  .spacer { flex: 1; }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 17px;
+    font-weight: 700;
+    font-family: inherit;
+    color: #fff;
+    background: var(--primary);
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:hover { background: var(--primary-dark); }
+  .btn:active { transform: scale(0.98); }
+
+  /* ---------- answers ---------- */
+  .answers { display: flex; flex-direction: column; gap: 12px; }
+
+  .answer {
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--text);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .answer:hover { border-color: var(--primary); }
+  .answer:active { transform: scale(0.985); }
+  .answer.selected {
+    border-color: var(--primary);
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+
+  .back-link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 0;
+    margin-top: 20px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* ---------- email gate ---------- */
+  .email-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 26px 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+  }
+  .email-input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 17px;
+    padding: 15px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .email-input:focus { border-color: var(--primary); }
+  .email-input.error { border-color: #e0455a; }
+  .email-error {
+    display: none;
+    color: #e0455a;
+    font-size: 13px;
+    font-weight: 600;
+    margin: -4px 0 12px;
+  }
+  .email-error.visible { display: block; }
+  .disclaimer {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  /* ---------- analyzing ---------- */
+  #screen-analyzing {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 22px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .analyzing-line {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-height: 24px;
+  }
+
+  /* ---------- result ---------- */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+  .result-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--primary);
+    background: var(--accent-soft);
+    padding: 6px 12px;
+    border-radius: 99px;
+    margin-bottom: 14px;
+  }
+  .result-title {
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .result-headline {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 16px;
+  }
+  .result-description {
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .result-signature {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+  .retake {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 22px;
+    padding: 8px;
+    align-self: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (min-width: 480px) {
+    h1 { font-size: 32px; }
+    .app { padding-top: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header><div class="logo" id="logo"></div></header>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span id="progressText"></span>
+      <span id="progressPct"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- intro -->
+  <section class="screen" id="screen-intro">
+    <div class="spacer"></div>
+    <span class="kicker" id="introKicker"></span>
+    <h1 id="introTitle"></h1>
+    <p class="subtitle" id="introSubtitle"></p>
+    <button class="btn" id="startBtn"></button>
+    <p class="footnote" id="introFootnote"></p>
+    <div class="spacer"></div>
+  </section>
+
+  <!-- question (reused for all 7) -->
+  <section class="screen" id="screen-question">
+    <h2 id="questionText"></h2>
+    <div class="answers" id="answers"></div>
+    <button class="back-link" id="backBtn">← Back</button>
+  </section>
+
+  <!-- email gate -->
+  <section class="screen" id="screen-email">
+    <div class="spacer"></div>
+    <div class="email-card">
+      <span class="kicker" id="emailKicker"></span>
+      <h2 id="emailTitle"></h2>
+      <p class="subtitle" id="emailSubtitle" style="margin-bottom:20px"></p>
+      <input class="email-input" id="emailInput" type="email" autocomplete="email" inputmode="email">
+      <p class="email-error" id="emailError">Hmm, that doesn't look like a valid email.</p>
+      <button class="btn" id="emailBtn"></button>
+      <p class="disclaimer" id="emailDisclaimer"></p>
+    </div>
+    <div class="spacer"></div>
+  </section>
+
+  <!-- analyzing -->
+  <section class="screen" id="screen-analyzing">
+    <div class="spinner"></div>
+    <p class="analyzing-line" id="analyzingLine"></p>
+  </section>
+
+  <!-- result -->
+  <section class="screen" id="screen-result">
+    <div class="spacer"></div>
+    <div class="result-card">
+      <span class="result-badge" id="resultBadge"></span>
+      <h1 class="result-title" id="resultTitle"></h1>
+      <p class="result-headline" id="resultHeadline"></p>
+      <p class="result-description" id="resultDescription"></p>
+      <a class="btn" id="resultOffer" href="#" style="text-decoration:none"></a>
+      <p class="result-signature" id="resultSignature"></p>
+    </div>
+    <button class="retake" id="retakeBtn">Retake the quiz</button>
+    <div class="spacer"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const C = CONFIG;
+
+  /* ----- apply brand colors from config ----- */
+  const cs = C.brand.colors;
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty("--primary", cs.primary);
+  rootStyle.setProperty("--primary-dark", cs.primaryDark);
+  rootStyle.setProperty("--accent-soft", cs.accentSoft);
+  rootStyle.setProperty("--bg", cs.bg);
+  rootStyle.setProperty("--surface", cs.surface);
+  rootStyle.setProperty("--text", cs.text);
+  rootStyle.setProperty("--text-muted", cs.textMuted);
+  rootStyle.setProperty("--border", cs.border);
+
+  /* ----- apply brand copy from config ----- */
+  document.title = C.intro.title;
+  $("logo").innerHTML = C.brand.logoText + "<span>" + C.brand.logoAccent + "</span>";
+  $("introKicker").textContent = C.intro.kicker;
+  $("introTitle").textContent = C.intro.title;
+  $("introSubtitle").textContent = C.intro.subtitle;
+  $("startBtn").textContent = C.intro.buttonLabel;
+  $("introFootnote").textContent = C.intro.footnote;
+  $("emailKicker").textContent = C.emailGate.kicker;
+  $("emailTitle").textContent = C.emailGate.title;
+  $("emailSubtitle").textContent = C.emailGate.subtitle;
+  $("emailInput").placeholder = C.emailGate.placeholder;
+  $("emailBtn").textContent = C.emailGate.buttonLabel;
+  $("emailDisclaimer").textContent = C.emailGate.disclaimer;
+
+  /* ----- state ----- */
+  const total = C.questions.length;
+  let current = 0;                       // index of question on screen
+  const picked = new Array(total).fill(null); // answer index per question
+  let advanceTimer = null;
+
+  /* ----- screen switching ----- */
+  function show(screenId) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    const el = $(screenId);
+    // restart the slide-in animation
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "";
+    el.classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+  /* ----- progress ----- */
+  function updateProgress(step) {
+    // step: 0..total for questions, total+1 = email
+    const pct = Math.round((step / (total + 1)) * 100);
+    $("progressFill").style.width = pct + "%";
+    $("progressPct").textContent = pct + "%";
+    $("progressText").textContent =
+      step <= total ? "Question " + Math.min(step, total) + " of " + total : "Last step";
+  }
+
+  /* ----- questions ----- */
+  function renderQuestion() {
+    const q = C.questions[current];
+    $("questionText").textContent = q.text;
+
+    const wrap = $("answers");
+    wrap.innerHTML = "";
+    q.answers.forEach((a, i) => {
+      const btn = document.createElement("button");
+      btn.className = "answer" + (picked[current] === i ? " selected" : "");
+      btn.type = "button";
+      btn.textContent = a.label;
+      btn.addEventListener("click", () => pick(i, btn));
+      wrap.appendChild(btn);
+    });
+
+    $("backBtn").style.visibility = current === 0 ? "hidden" : "visible";
+    $("progressWrap").classList.add("visible");
+    updateProgress(current + 1);
+    show("screen-question");
+  }
+
+  function pick(answerIndex, btnEl) {
+    if (advanceTimer) return; // ignore taps while advancing
+    picked[current] = answerIndex;
+    document.querySelectorAll(".answer").forEach(b => b.classList.remove("selected"));
+    btnEl.classList.add("selected");
+
+    advanceTimer = setTimeout(() => {
+      advanceTimer = null;
+      if (current < total - 1) {
+        current++;
+        renderQuestion();
+      } else {
+        updateProgress(total + 1);
+        show("screen-email");
+        }
+    }, 350);
+  }
+
+  /* ----- scoring ----- */
+  function computeResult() {
+    const scores = {};
+    Object.keys(C.results).forEach(k => (scores[k] = 0));
+    picked.forEach((answerIndex, qi) => {
+      if (answerIndex === null) return;
+      const pts = C.questions[qi].answers[answerIndex].points;
+      Object.keys(pts).forEach(k => (scores[k] = (scores[k] || 0) + pts[k]));
+    });
+    // highest score wins; ties resolve by order in CONFIG.results
+    let best = Object.keys(C.results)[0];
+    Object.keys(C.results).forEach(k => { if (scores[k] > scores[best]) best = k; });
+    return best;
+  }
+
+  /* ----- result rendering ----- */
+  function showResult() {
+    const r = C.results[computeResult()];
+    $("resultBadge").textContent = r.badge;
+    $("resultTitle").textContent = r.title;
+    $("resultHeadline").textContent = r.headline;
+    $("resultDescription").textContent = r.description;
+    $("resultOffer").textContent = r.offerLabel;
+    $("resultOffer").href = r.offerUrl;
+    $("resultSignature").textContent = C.brand.coachName + ", " + C.brand.tagline.toLowerCase();
+    $("progressWrap").classList.remove("visible");
+    show("screen-result");
+  }
+
+  /* ----- fake analyzing sequence ----- */
+  function runAnalyzing() {
+    show("screen-analyzing");
+    const lines = C.analyzing.lines;
+    let i = 0;
+    $("analyzingLine").textContent = lines[0];
+    const ticker = setInterval(() => {
+      i++;
+      if (i < lines.length) {
+        $("analyzingLine").textContent = lines[i];
+      } else {
+        clearInterval(ticker);
+        showResult();
+      }
+    }, 900);
+  }
+
+  /* ----- events ----- */
+  $("startBtn").addEventListener("click", () => {
+    current = 0;
+    renderQuestion();
+  });
+
+  $("backBtn").addEventListener("click", () => {
+    if (current > 0) {
+      current--;
+      renderQuestion();
+    }
+  });
+
+  $("emailBtn").addEventListener("click", () => {
+    const input = $("emailInput");
+    const email = input.value.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+    if (!valid) {
+      input.classList.add("error");
+      $("emailError").classList.add("visible");
+      input.focus();
+      return;
+    }
+    input.classList.remove("error");
+    $("emailError").classList.remove("visible");
+    // Demo only: the email is not sent anywhere.
+    runAnalyzing();
+  });
+
+  $("emailInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") $("emailBtn").click();
+  });
+
+  $("retakeBtn").addEventListener("click", () => {
+    picked.fill(null);
+    current = 0;
+    $("emailInput").value = "";
+    $("progressWrap").classList.remove("visible");
+    show("screen-intro");
+  });
+
+  /* ----- boot ----- */
+  show("screen-intro");
+})();
+</script>
+</body>
+</html>
