@@ -215,7 +215,8 @@ const CONFIG = {
     width: 0%;
     background: var(--primary);
     border-radius: 99px;
-    transition: width 0.35s ease;
+    transition: width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 45%, transparent);
   }
 
   /* ---------- screens ---------- */
@@ -231,6 +232,40 @@ const CONFIG = {
     from { opacity: 0; transform: translateX(24px); }
     to   { opacity: 1; transform: translateX(0); }
   }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bouncePick {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fadeSwap {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes confettiFall {
+    to { transform: translateY(440px) rotate(560deg); opacity: 0; }
+  }
+
+  /* intro: one orchestrated stagger on load */
+  #screen-intro .kicker,
+  #screen-intro h1,
+  #screen-intro .subtitle,
+  #screen-intro .btn,
+  #screen-intro .footnote {
+    animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  #screen-intro .kicker   { animation-delay: 0.05s; }
+  #screen-intro h1        { animation-delay: 0.15s; }
+  #screen-intro .subtitle { animation-delay: 0.25s; }
+  #screen-intro .btn      { animation-delay: 0.35s; }
+  #screen-intro .footnote { animation-delay: 0.45s; }
 
   .kicker {
     display: inline-block;
@@ -288,16 +323,21 @@ const CONFIG = {
     border: none;
     border-radius: 14px;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     -webkit-tap-highlight-color: transparent;
   }
-  .btn:hover { background: var(--primary-dark); }
-  .btn:active { transform: scale(0.98); }
+  .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+  .btn:active { transform: scale(0.98); box-shadow: none; }
 
   /* ---------- answers ---------- */
   .answers { display: flex; flex-direction: column; gap: 12px; }
 
   .answer {
+    position: relative;
     width: 100%;
     text-align: left;
     font-family: inherit;
@@ -307,17 +347,33 @@ const CONFIG = {
     background: var(--surface);
     border: 2px solid var(--border);
     border-radius: 14px;
-    padding: 16px 18px;
+    padding: 16px 44px 16px 18px;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     -webkit-tap-highlight-color: transparent;
+    animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .answer:hover { border-color: var(--primary); }
+  .answer:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
   .answer:active { transform: scale(0.985); }
   .answer.selected {
     border-color: var(--primary);
     background: var(--accent-soft);
     font-weight: 600;
+    animation: bouncePick 0.35s ease;
+  }
+  .answer.selected::after {
+    content: "✓";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary);
   }
 
   .back-link {
@@ -342,6 +398,7 @@ const CONFIG = {
     border-radius: 18px;
     padding: 26px 22px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .email-input {
     width: 100%;
@@ -395,8 +452,10 @@ const CONFIG = {
     color: var(--text-muted);
     min-height: 24px;
   }
+  .analyzing-line.swap { animation: fadeSwap 0.45s ease; }
 
   /* ---------- result ---------- */
+  #screen-result { position: relative; overflow: hidden; }
   .result-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -404,6 +463,23 @@ const CONFIG = {
     padding: 28px 22px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.05);
     text-align: center;
+  }
+  .result-card > * { animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .result-card > *:nth-child(1) { animation-delay: 0.05s; }
+  .result-card > *:nth-child(2) { animation-delay: 0.15s; }
+  .result-card > *:nth-child(3) { animation-delay: 0.25s; }
+  .result-card > *:nth-child(4) { animation-delay: 0.35s; }
+  .result-card > *:nth-child(5) { animation-delay: 0.5s; }
+  .result-card > *:nth-child(6) { animation-delay: 0.6s; }
+  .confetti {
+    position: absolute;
+    top: -14px;
+    width: 8px;
+    height: 13px;
+    border-radius: 2px;
+    opacity: 0.9;
+    pointer-events: none;
+    animation: confettiFall 1.4s cubic-bezier(0.3, 0, 0.8, 1) forwards;
   }
   .result-badge {
     display: inline-block;
@@ -459,6 +535,15 @@ const CONFIG = {
   @media (min-width: 480px) {
     h1 { font-size: 32px; }
     .app { padding-top: 32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-delay: 0ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
   }
 </style>
 </head>
@@ -602,6 +687,7 @@ const CONFIG = {
       btn.className = "answer" + (picked[current] === i ? " selected" : "");
       btn.type = "button";
       btn.textContent = a.label;
+      btn.style.animationDelay = (80 + i * 60) + "ms";
       btn.addEventListener("click", () => pick(i, btn));
       wrap.appendChild(btn);
     });
@@ -657,23 +743,48 @@ const CONFIG = {
     $("resultSignature").textContent = C.brand.coachName + ", " + C.brand.tagline.toLowerCase();
     $("progressWrap").classList.remove("visible");
     show("screen-result");
+    launchConfetti();
   }
 
   /* ----- fake analyzing sequence ----- */
   function runAnalyzing() {
     show("screen-analyzing");
     const lines = C.analyzing.lines;
+    const el = $("analyzingLine");
     let i = 0;
-    $("analyzingLine").textContent = lines[0];
+    const swapTo = text => {
+      el.classList.remove("swap");
+      void el.offsetWidth;
+      el.textContent = text;
+      el.classList.add("swap");
+    };
+    swapTo(lines[0]);
     const ticker = setInterval(() => {
       i++;
       if (i < lines.length) {
-        $("analyzingLine").textContent = lines[i];
+        swapTo(lines[i]);
       } else {
         clearInterval(ticker);
         showResult();
       }
     }, 900);
+  }
+
+  /* ----- confetti burst on the result screen ----- */
+  function launchConfetti() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const host = $("screen-result");
+    const colors = [cs.primary, cs.primaryDark, cs.accentSoft];
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement("span");
+      p.className = "confetti";
+      p.style.left = (4 + Math.random() * 92) + "%";
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = (Math.random() * 0.3) + "s";
+      p.style.animationDuration = (1.1 + Math.random() * 0.7) + "s";
+      host.appendChild(p);
+      setTimeout(() => p.remove(), 2600);
+    }
   }
 
   /* ----- events ----- */
